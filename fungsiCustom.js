@@ -1,5 +1,6 @@
 // TODO: import module bila dibutuhkan di sini
 const fs = require('fs');
+const { get } = require('http');
 
 // ! JANGAN DIMODIFIKASI
 let file1 = "./data1.json";
@@ -20,42 +21,44 @@ let modifyFile3 = (val) => {
 // TODO: Kerjakan bacaData
 // gunakan variabel file1, file2, dan file3
 
-// Fungsi mengambil message sesuai dengan struktur data Json
+const bacaData = (fnCallback) => {
+    let hasilAkhir = [];
 
-const splitMessage = (dataJson) => {
-  
-  let arrayMsg = [];
+    fs.readFile(file1, "utf-8", (err, data) => {
+        if(err) {
+            return console.log(`Terjadi kesalahan data 1! ${err}`);
+        };
 
-  if (dataJson.message !== undefined) {
-    arrayMsg = dataJson.message.split(" ");
-    return arrayMsg[arrayMsg.length - 1];
-  };
+        let getData = JSON.parse(data);
+        let getMsg = getData.message.split(" ");
 
-  if (dataJson[0].message !== undefined) {
-    arrayMsg = dataJson[0].message.split(" ");
-    return arrayMsg[arrayMsg.length - 1];
-  };
+        hasilAkhir.push(getMsg[1]);
 
-  if (dataJson[0].data.message !== undefined) {
-    arrayMsg = dataJson[0].data.message.split(" ");
-    return arrayMsg[arrayMsg.length - 1];
-  };
-};
+        fs.readFile(file2, "utf-8", (err, data) => {
+            if(err) {
+                return console.log(`Terjadi kesalahan data 2! ${err}`);
+            };
 
-async function bacaData(fnCallback) {
-  let files = [file1, file2, file3];
-  let hasilAkhir= [];
+            let getData = JSON.parse(data);
+            let getMsg = getData[0].message.split(" ");
 
-  try {
-    for (const file of files) {
-    const data = await fs.promises.readFile(file, "utf-8");
-    hasilAkhir.push(splitMessage(JSON.parse(data)));
-    };
-    fnCallback(null, hasilAkhir);
-  }
-  catch(err) {
-    fnCallback(err, null);
-  };
+            hasilAkhir.push(getMsg[1]);
+
+            fs.readFile(file3, "utf-8", (err, data) => {
+                if(err) {
+                    return console.log(`Terjadi kesalahan data 3! ${err}`);
+                };
+
+                let getData = JSON.parse(data);
+                let getMsg = getData[0].data.message.split(" ");
+
+                hasilAkhir.push(getMsg[1]);
+
+                return fnCallback(err, hasilAkhir)
+            });
+        
+        });
+    });
 };
 
 // ! JANGAN DIMODIFIKASI
